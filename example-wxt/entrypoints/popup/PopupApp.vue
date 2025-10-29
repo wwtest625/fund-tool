@@ -324,6 +324,13 @@ onMounted(() => {
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'YanZhenQing DuoBaoTaBei';
+  src: url('/assets/fonts/YanZhenQingDuoBaoTaBei-2.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .popup-root {
   position: relative;
   width: 600px;
@@ -412,7 +419,7 @@ onMounted(() => {
 }
 
 .quote-text {
-  font-family: 'Pingfang Zhanlang', sans-serif;
+  font-family: 'YanZhenQing DuoBaoTaBei', sans-serif;
   font-size: 20px;
   line-height: 1.5;
   color: #333333;
@@ -422,7 +429,7 @@ onMounted(() => {
 }
 
 .quote-author {
-  font-family: 'Pingfang Zhanlang', sans-serif;
+  font-family: 'YanZhenQing DuoBaoTaBei', sans-serif;
   font-size: 13px;
   color: #A0A0A0;
   margin: 0;
