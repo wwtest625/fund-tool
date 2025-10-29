@@ -6,7 +6,7 @@
         <template #title>
           <div class="welcome-title">
             <span class="welcome-heading">你好，投资者</span>
-            <span class="welcome-subtitle">这是你定投的第 {{ investmentDays }} 天</span>
+            <span class="welcome-subtitle">这是你定投的第 <span class="days-number">{{ investmentDays }}</span> 天</span>
           </div>
         </template>
         <template #actions>
@@ -20,7 +20,6 @@
               size="small"
               @click="action.handler"
             >
-              <component :is="action.icon" v-if="action.icon" />
               {{ action.label }}
             </t-button>
           </t-space>
@@ -390,6 +389,11 @@ onMounted(() => {
   color: #666666;
 }
 
+.days-number {
+  font-weight: 700;
+  color: #E74856;
+}
+
 .welcome-body {
   margin-top: 8px;
 }
@@ -409,19 +413,21 @@ onMounted(() => {
 
 .quote-text {
   font-family: 'Pingfang Zhanlang', sans-serif;
-  font-size: 16px;
-  line-height: 1.4;
+  font-size: 20px;
+  line-height: 1.5;
   color: #333333;
   margin: 0;
   font-style: italic;
+  font-weight: 700;
 }
 
 .quote-author {
   font-family: 'Pingfang Zhanlang', sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   color: #A0A0A0;
   margin: 0;
   text-align: left;
+  font-weight: 600;
 }
 
 .index-title {
