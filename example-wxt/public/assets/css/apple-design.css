@@ -1,0 +1,788 @@
+.numeric-readout {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.numeric-readout span {
+  display: block;
+  font-size: 12px;
+  color: rgba(28, 28, 30, 0.5);
+}
+.fund-table th:nth-child(2),
+.fund-table td:nth-child(2),
+.fund-table th:nth-child(6),
+.fund-table td:nth-child(6),
+.fund-table th:nth-child(8),
+.fund-table td:nth-child(8) {
+  border-right: 1px solid rgba(60, 60, 67, 0.12);
+}
+:root {
+  --app-bg: #f5f5f7;
+  --app-surface: rgba(255, 255, 255, 0.82);
+  --app-border: rgba(0, 0, 0, 0.08);
+  --app-divider: rgba(60, 60, 67, 0.18);
+  --text-primary: #1c1c1e;
+  --text-secondary: rgba(28, 28, 30, 0.64);
+  --accent: #007aff;
+  --accent-muted: rgba(0, 122, 255, 0.14);
+  --positive: #22c55e;
+  --warning: #ff9f0a;
+  --danger: #ff3b30;
+  --radius-large: 24px;
+  --radius-medium: 14px;
+  --shadow-soft: 0 20px 60px rgba(15, 23, 42, 0.12);
+  --shadow-card: 0 12px 32px rgba(17, 24, 39, 0.08);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 740px;
+  min-height: 520px;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text-primary);
+  background: linear-gradient(180deg, #f7f7fc 0%, #eef1f8 45%, #e7ebf3 100%);
+}
+
+.app-shell {
+  width: min(1500px, 98vw);
+  max-width: 1500px;
+  margin: 32px auto 48px;
+  padding: 0 48px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.app-card {
+  background: var(--app-surface);
+  backdrop-filter: saturate(180%) blur(24px);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--app-border);
+}
+
+.app-header {
+  padding: 32px 40px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.app-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.app-title h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.app-title small {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.badge-group {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.badge-group span,
+.badge-group .am-link-cursor {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.am-link-cursor,
+.view-fund {
+  cursor: pointer;
+}
+
+.badge-group span:hover,
+.badge-group .am-link-cursor:hover {
+  background: var(--accent-muted);
+  color: var(--accent);
+}
+
+.notice-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.notice-controls select {
+  min-width: 260px;
+  padding: 12px 16px;
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--app-border);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.notice-controls select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-muted);
+}
+
+.notice-legend {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.table-card {
+  padding: 20px 0 36px;
+}
+
+.fund-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: var(--radius-medium);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.fund-table col.col-name {
+  width: 18%;
+}
+
+.fund-table col.col-code {
+  width: 10%;
+}
+
+.fund-table col.col-price {
+  width: 8%;
+}
+
+.fund-table col.col-holding {
+  width: 9%;
+}
+
+.fund-table col.col-latest,
+.fund-table col.col-profit {
+  width: 9%;
+}
+
+.fund-table col.col-net {
+  width: 6%;
+}
+
+.fund-table col.col-hold-profit {
+  width: 6%;
+}
+
+.fund-table col.col-actions {
+  width: 9%;
+}
+
+.fund-table thead,
+.fund-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.fund-table thead {
+  backdrop-filter: saturate(180%) blur(18px);
+  background: rgba(249, 249, 252, 0.85);
+}
+
+.fund-table tbody {
+  width: 100%;
+}
+
+
+.fund-table th,
+.fund-table td {
+  padding: 18px 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--app-divider);
+  color: var(--text-primary);
+  font-size: 14.5px;
+  font-weight: 500;
+}
+
+.fund-table th {
+  font-weight: 600;
+  color: rgba(28, 28, 30, 0.82);
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.fund-table tr:last-child td {
+  border-bottom: none;
+}
+
+.fund-table tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.fund-table tbody tr:hover td {
+  background: rgba(0, 122, 255, 0.06);
+}
+
+.fund-table tbody tr.is-selected td {
+  background: rgba(0, 122, 255, 0.12);
+}
+
+.fund-table input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(120, 120, 128, 0.18);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-primary);
+  text-align: center;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.app-card input[type="text"],
+.app-card textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(120, 120, 128, 0.16);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  color: var(--text-primary);
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+  resize: vertical;
+}
+
+.app-card input[type="text"]:focus,
+.app-card textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+  outline: none;
+}
+
+.app-card .app-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.app-card .app-button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.app-card .app-button.secondary {
+  background: rgba(28, 28, 30, 0.74);
+}
+
+.app-card .app-button.danger {
+  background: var(--danger);
+}
+
+.app-card .app-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.section-subtitle {
+  margin-bottom: 24px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.code-preview {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border-radius: var(--radius-medium);
+  background: rgba(0, 0, 0, 0.04);
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.app-card .description {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 22px;
+  line-height: 1.6;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.field-group label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.backup-list {
+  max-height: 260px;
+  overflow-y: auto;
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--app-border);
+  background: rgba(255, 255, 255, 0.6);
+  padding: 0;
+  list-style: none;
+}
+
+.backup-list li {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--app-divider);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.backup-list li:last-child {
+  border-bottom: none;
+}
+
+.backup-meta {
+  display: grid;
+  grid-template-columns: 80px 140px;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.backup-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.backup-actions .list-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.backup-actions .list-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.backup-actions .am-btn-primary {
+  background: var(--accent);
+}
+
+.backup-actions .am-btn-danger {
+  background: var(--danger);
+}
+
+.backup-actions .am-btn-warning {
+  background: var(--warning);
+}
+
+.fund-table input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+  outline: none;
+}
+
+.fund-name-header strong {
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.fund-name-header,
+.fund-name-column {
+  text-align: left;
+}
+
+.fund-name-column {
+  min-width: 260px;
+}
+
+.fund-table td.fund-name-column {
+  text-align: left;
+}
+
+.fund-name-header label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fund-name-header input {
+  width: 18px;
+  height: 18px;
+}
+
+.fund-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
+.fund-name-cell .fund-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.fund-name-cell .fund-checkbox input {
+  width: 18px;
+  height: 18px;
+}
+
+.fund-name-text {
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--text-primary);
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fund-name-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fund-notice-icon {
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.fund-table td.code-cell {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.fund-table td.numeric-cell {
+  font-size: 15.5px;
+  font-weight: 600;
+}
+
+.fund-table td.numeric-cell.profit-positive,
+.fund-table td.numeric-cell .profit-positive {
+  color: var(--positive);
+}
+
+.fund-table td.numeric-cell.profit-negative,
+.fund-table td.numeric-cell .profit-negative {
+  color: var(--danger);
+}
+
+.fund-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.fund-table .am-btn {
+  border: none;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 10px 20px;
+  min-width: 72px;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fund-table .am-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.fund-table .am-btn-success {
+  background: var(--positive);
+}
+
+.fund-table .am-btn-primary {
+  background: var(--accent);
+}
+
+.fund-table .am-btn-warning {
+  background: var(--warning);
+}
+
+.fund-table .am-btn-danger {
+  background: var(--danger);
+}
+
+.summary-row td {
+  font-weight: 650;
+  color: var(--text-secondary);
+  font-size: 15px;
+  background: rgba(60, 60, 67, 0.06);
+  border-right: none !important;
+}
+
+.summary-row .summary-label {
+  text-align: right;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(28, 28, 30, 0.6);
+}
+
+.summary-row .numeric-cell {
+  font-size: 16px;
+}
+
+.help_content {
+  border-radius: var(--radius-medium);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 18px 22px;
+  color: var(--text-secondary);
+}
+
+.zan-img img {
+  width: 160px;
+  border-radius: var(--radius-medium);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.zan-img {
+  display: none;
+}
+
+.badge-group .refresh i,
+.badge-group .document i,
+.badge-group .zan i,
+.badge-group .popup i,
+.badge-group .bak i {
+  font-size: 14px;
+}
+
+.fund-table .view-fund {
+  margin-left: 6px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.fund-table .view-fund:hover {
+  color: #005ac1;
+}
+
+.checkbox-all,
+input[name='notice[]'] {
+  width: auto;
+  accent-color: var(--accent);
+}
+
+.table-toolbar {
+  padding: 0 24px;
+}
+
+.empty-state {
+  padding: 36px 26px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.app-shell[data-layout="popup"] {
+  max-width: 1840px;
+  margin: 16px auto 24px;
+  padding: 0 18px 24px;
+  gap: 18px;
+}
+
+.app-shell[data-layout="popup"] .app-header {
+  padding: 16px 18px 12px;
+  gap: 12px;
+}
+
+.app-shell[data-layout="popup"] .app-title h1 {
+  font-size: 25px;
+}
+
+.app-shell[data-layout="popup"] .badge-group span,
+.app-shell[data-layout="popup"] .badge-group .am-link-cursor {
+  font-size: 11.5px;
+  padding: 4px 10px;
+}
+
+.app-shell[data-layout="popup"] .notice-controls {
+  gap: 15px;
+}
+
+.app-shell[data-layout="popup"] .notice-controls select {
+  min-width: 170px;
+  padding: 6px 9px;
+}
+
+.app-shell[data-layout="popup"] .notice-legend {
+  font-size: 11.5px;
+}
+
+.app-shell[data-layout="popup"] .table-card {
+  padding: 6px 0 18px;
+}
+
+.app-shell[data-layout="popup"] .table-toolbar {
+  padding: 0 16px;
+}
+
+.app-shell[data-layout="popup"] .fund-table {
+  max-height: 420px;
+  overflow: hidden;
+}
+
+.app-shell[data-layout="popup"] .fund-table thead,
+.app-shell[data-layout="popup"] .fund-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+
+.app-shell[data-layout="popup"] .fund-table col.col-name {
+  width: 18%;
+}
+
+.app-shell[data-layout="popup"] .fund-table col.col-code {
+  width: 10%;
+}
+
+.app-shell[data-layout="popup"] .fund-table col.col-price {
+  width: 8%;
+}
+
+.app-shell[data-layout="popup"] .fund-table col.col-holding {
+  width: 9%;
+}
+
+.app-shell[data-layout="popup"] .fund-table col.col-latest,
+.app-shell[data-layout="popup"] .fund-table col.col-profit {
+  width: 9%;
+}
+
+.app-shell[data-layout="popup"] .fund-table col.col-net {
+  width: 6%;
+}
+
+.app-shell[data-layout="popup"] .fund-table col.col-hold-profit {
+  width: 6%;
+}
+
+.app-shell[data-layout="popup"] .fund-table col.col-actions {
+  width: 9%;
+}
+
+.app-shell[data-layout="popup"] .numeric-readout span {
+  font-size: 11px;
+}
+
+.app-shell[data-layout="popup"] .fund-table tbody {
+  display: block;
+  max-height: 360px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.app-shell[data-layout="popup"] .fund-table th,
+.app-shell[data-layout="popup"] .fund-table td {
+  padding: 11px 9px;
+  font-size: 12.5px;
+}
+
+.app-shell[data-layout="popup"] .fund-table input {
+  padding: 6px 8px;
+  font-size: 12.5px;
+}
+
+.app-shell[data-layout="popup"] .fund-table .am-btn {
+  padding: 6px 12px;
+  font-size: 11.5px;
+}
+
+.app-shell[data-layout="popup"] .empty-state {
+  padding: 24px 18px;
+  font-size: 13px;
+}
+
+.app-shell[data-layout="popup"] .fund-name-column {
+  min-width: 180px;
+}
+
+.app-shell[data-layout="popup"] .fund-name-cell {
+  gap: 8px;
+}
+
+.app-shell[data-layout="popup"] .fund-name-header input,
+.app-shell[data-layout="popup"] .fund-name-cell .fund-checkbox input {
+  width: 16px;
+  height: 16px;
+}
+
+.app-shell[data-layout="popup"] .fund-name-text {
+  font-size: 13px;
+  max-width: 160px;
+}
+
+.app-shell[data-layout="popup"] .fund-table td.code-cell {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.app-shell[data-layout="popup"] .fund-table td.numeric-cell {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.app-shell[data-layout="popup"] .fund-actions {
+  gap: 6px;
+  justify-content: center;
+}

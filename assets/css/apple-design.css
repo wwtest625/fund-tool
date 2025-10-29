@@ -199,6 +199,13 @@ body {
   width: 9%;
 }
 
+.fund-table thead,
+.fund-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
 .fund-table thead {
   backdrop-filter: saturate(180%) blur(18px);
   background: rgba(249, 249, 252, 0.85);
