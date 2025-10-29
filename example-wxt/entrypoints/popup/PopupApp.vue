@@ -55,7 +55,6 @@
                 <span>{{ formatSigned(item.change) }}</span>
                 <span>({{ formatPercent(item.changePercent) }})</span>
               </div>
-              <div class="index-updated">更新时间：{{ formatUpdatedAt(item.updatedAt) }}</div>
             </div>
           </div>
         </div>
@@ -361,17 +360,17 @@ onMounted(() => {
   z-index: 1;
   width: 100%;
   margin: 0 auto;
-  padding: 32px 20px 48px;
+  padding: 16px 20px 48px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 10px;
 }
 
 .welcome-card,
 .quote-card,
 .index-board {
   backdrop-filter: blur(6px);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(245, 245, 245, 0.95);
 }
 
 .welcome-title {
@@ -381,14 +380,14 @@ onMounted(() => {
 }
 
 .welcome-heading {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  color: #0f172a;
+  color: #333333;
 }
 
 .welcome-subtitle {
-  font-size: 14px;
-  color: #475569;
+  font-size: 11px;
+  color: #666666;
 }
 
 .welcome-body {
@@ -404,24 +403,25 @@ onMounted(() => {
 .quote-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   padding: 8px 4px;
 }
 
 .quote-text {
   font-family: 'Pingfang Zhanlang', sans-serif;
-  font-size: 24px;
-  line-height: 1.6;
-  color: #1e293b;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #333333;
   margin: 0;
+  font-style: italic;
 }
 
 .quote-author {
   font-family: 'Pingfang Zhanlang', sans-serif;
-  font-size: 14px;
-  color: #64748b;
+  font-size: 12px;
+  color: #A0A0A0;
   margin: 0;
-  text-align: right;
+  text-align: left;
 }
 
 .index-title {
@@ -431,14 +431,14 @@ onMounted(() => {
 }
 
 .index-heading {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  color: #0f172a;
+  color: #333333;
 }
 
 .index-subtitle {
-  font-size: 13px;
-  color: #64748b;
+  font-size: 12px;
+  color: #888888;
 }
 
 .index-body {
@@ -453,23 +453,24 @@ onMounted(() => {
 
 .index-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .index-cell {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  border-radius: 14px;
-  background: rgba(15, 23, 42, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 6px;
+  background: #E0E8ED;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 .index-cell:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+  background: #D6DFE9;
 }
 
 .index-cell-header {
@@ -480,21 +481,27 @@ onMounted(() => {
 }
 
 .index-name {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
-  color: #0f172a;
+  color: #333333;
 }
 
 .index-symbol {
-  font-size: 12px;
-  color: #94a3b8;
+  font-size: 11px;
+  color: #888888;
   text-transform: uppercase;
 }
 
 .index-value {
-  font-size: 26px;
-  font-weight: 600;
-  color: #0f172a;
+  font-size: 18px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.index-cell:nth-child(3) .index-value,
+.index-cell:nth-child(4) .index-value {
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .index-deltas {
@@ -505,20 +512,15 @@ onMounted(() => {
 }
 
 .index-up {
-  color: #16a34a;
+  color: #22B856;
 }
 
 .index-down {
-  color: #dc2626;
+  color: #E74856;
 }
 
 .index-neutral {
-  color: #475569;
-}
-
-.index-updated {
-  font-size: 12px;
-  color: #94a3b8;
+  color: #666666;
 }
 
 .dialog-text {
@@ -534,21 +536,47 @@ onMounted(() => {
   color: #94a3b8;
 }
 
+:deep(.t-button) {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+:deep(.t-button.t-is-base) {
+  background-color: #3498DB;
+  color: white;
+}
+
+:deep(.t-button.t-is-base:hover) {
+  background-color: #2980B9;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+:deep(.t-button.t-is-outline:hover) {
+  border-color: #3498DB;
+  color: #3498DB;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+  text-decoration: underline;
+}
+
 @media (max-width: 640px) {
   .content-layer {
-    padding: 24px 16px 40px;
+    padding: 12px 16px 40px;
   }
 
   .welcome-heading {
-    font-size: 20px;
+    font-size: 11px;
   }
 
   .quote-text {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .index-value {
-    font-size: 22px;
+    font-size: 16px;
+  }
+
+  .index-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
