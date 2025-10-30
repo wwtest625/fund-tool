@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fund Management Dashboard</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 300,
+                'GRAD' 0,
+                'opsz' 20
+        }
+    </style>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0A84FF", // A vibrant Apple-like blue
+                        "background-light": "#f6f6f7",
+                        "background-dark": "#1d1d1f",
+                        "card-light": "#ffffff",
+                        "card-dark": "#2c2c2e",
+                        "text-light": "#1d1d1f",
+                        "text-dark": "#f5f5f7",
+                        "text-secondary-light": "#6e6e73",
+                        "text-secondary-dark": "#a1a1a6",
+                        "border-light": "#e5e5e5",
+                        "border-dark": "#3a3a3c",
+                        "button-secondary-light": "#f2f2f2",
+                        "button-secondary-dark": "#3a3a3c",
+                        "button-secondary-hover-light": "#e5e5e5",
+                        "button-secondary-hover-dark": "#4a4a4c",
+                    },
+                    fontFamily: {
+                        display: ["-apple-system", "BlinkMacSystemFont", "Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        lg: "12px",
+                        xl: "16px",
+                    },
+                    boxShadow: {
+                        'soft': '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
+                        'soft-dark': '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.2)'
+                    }
+                },
+            },
+        };
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark antialiased">
+<div class="min-h-screen p-6 md:p-10">
+<div class="max-w-7xl mx-auto space-y-8">
+<header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+<div>
+<h1 class="text-3xl font-bold text-text-light dark:text-text-dark">我的基金</h1>
+<p class="text-text-secondary-light dark:text-text-secondary-dark mt-1">智能组合视图</p>
+</div>
+<div class="flex items-center space-x-2">
+<button class="bg-primary text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-all duration-200 hover:bg-opacity-90 active:scale-95">
+<span class="material-symbols-outlined">refresh</span>
+                        刷新
+                    </button>
+<button class="bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-text-dark font-medium py-2 px-4 rounded-lg flex items-center gap-2 border border-border-light dark:border-border-dark hover:bg-button-secondary-hover-light dark:hover:bg-button-secondary-hover-dark transition">
+<span class="material-symbols-outlined">help</span>
+                        帮助
+                    </button>
+<button class="bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-text-dark font-medium py-2 px-4 rounded-lg flex items-center gap-2 border border-border-light dark:border-border-dark hover:bg-button-secondary-hover-light dark:hover:bg-button-secondary-hover-dark transition">
+<span class="material-symbols-outlined">favorite</span>
+                        支持
+                    </button>
+<button class="bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-text-dark font-medium py-2 px-4 rounded-lg flex items-center gap-2 border border-border-light dark:border-border-dark hover:bg-button-secondary-hover-light dark:hover:bg-button-secondary-hover-dark transition">
+<span class="material-symbols-outlined">cloud_upload</span>
+                        备份
+                    </button>
+</div>
+</header>
+<div class="bg-card-light/80 dark:bg-card-dark/80 backdrop-blur-xl rounded-xl shadow-soft dark:shadow-soft-dark p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-black/5 dark:border-white/5">
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="relative w-full max-w-xs">
+<select class="w-full pl-4 pr-10 py-2.5 text-text-secondary-light dark:text-text-secondary-dark bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition appearance-none">
+<option>通知设置</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark">unfold_more</span>
+</div>
+<button class="bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-text-dark font-medium py-2.5 px-5 rounded-lg flex items-center gap-2 border border-border-light dark:border-border-dark hover:bg-button-secondary-hover-light dark:hover:bg-button-secondary-hover-dark transition">
+<span class="material-symbols-outlined">settings</span>
+                        更改
+                    </button>
+</div>
+<div class="flex items-center space-x-6 text-sm text-text-secondary-light dark:text-text-secondary-dark">
+<a class="flex items-center gap-1.5 hover:text-primary dark:hover:text-primary transition" href="#">
+<span class="material-symbols-outlined !text-base">notifications_paused</span>
+                        暂停所有
+                    </a>
+<a class="flex items-center gap-1.5 hover:text-primary dark:hover:text-primary transition" href="#">
+<span class="material-symbols-outlined !text-base">trending_down</span>
+                        暂停卖出
+                    </a>
+<a class="flex items-center gap-1.5 hover:text-primary dark:hover:text-primary transition" href="#">
+<span class="material-symbols-outlined !text-base">trending_up</span>
+                        暂停补仓
+                    </a>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-xl shadow-soft dark:shadow-soft-dark border border-black/5 dark:border-white/5">
+<div class="grid grid-cols-12 gap-6 px-6 py-3 border-b border-border-light dark:border-border-dark items-center text-xs uppercase text-text-secondary-light dark:text-text-secondary-dark tracking-wider">
+<div class="col-span-1 flex items-center">
+<input class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-background-light dark:bg-card-dark" type="checkbox"/>
+</div>
+<div class="col-span-2">基金名称</div>
+<div class="col-span-1">代码</div>
+<div class="col-span-1">成本价</div>
+<div class="col-span-1">补仓提醒</div>
+<div class="col-span-1">卖出提醒</div>
+<div class="col-span-1">持有份额</div>
+<div class="col-span-1">最新价</div>
+<div class="col-span-2">盈亏估算</div>
+<div class="col-span-1">操作</div>
+</div>
+<div class="text-center py-28">
+<p class="text-text-secondary-light dark:text-text-secondary-dark">暂无基金数据, 点击下方新增基金。</p>
+</div>
+<div class="px-6 py-4 border-t border-border-light dark:border-border-dark">
+<div class="flex items-center gap-4">
+<input class="flex-1 max-w-40 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="基金代码" type="text"/>
+<input class="flex-1 max-w-40 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="成本价" type="text"/>
+<input class="flex-1 max-w-40 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="补仓提醒" type="text"/>
+<input class="flex-1 max-w-40 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="卖出提醒" type="text"/>
+<input class="flex-1 max-w-40 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="持有份额" type="text"/>
+<button class="bg-primary text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 ml-auto transition-all duration-200 hover:bg-opacity-90 active:scale-95">
+<span class="material-symbols-outlined !text-xl">add</span>
+                            新增
+                        </button>
+</div>
+</div>
+<div class="px-6 py-4 bg-background-light dark:bg-background-dark rounded-b-xl flex items-center space-x-8 text-sm">
+<div>
+<span class="text-text-secondary-light dark:text-text-secondary-dark">估算合计:</span>
+<span class="font-semibold text-lg text-text-light dark:text-text-dark ml-2">0.00</span>
+</div>
+<div>
+<span class="text-text-secondary-light dark:text-text-secondary-dark">持有合计:</span>
+<span class="font-semibold text-lg text-text-light dark:text-text-dark ml-2">0.00</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

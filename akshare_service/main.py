@@ -121,32 +121,47 @@ def _fetch_index_via_akshare(symbol: str) -> Optional[Dict[str, Any]]:
     """使用 AkShare 获取美股指数数据（备用方案）"""
     import logging
     logger = logging.getLogger("uvicorn")
-    
+
     try:
         logger.info(f"AkShare 请求: {symbol}")
         # AkShare 的美股指数接口
         df = ak.index_us_stock_sina(symbol=symbol)
-        
+
         if df is None or df.empty:
             logger.warning(f"AkShare 返回空数据: {symbol}")
             return None
-        
+
         logger.info(f"AkShare 返回 {len(df)} 行数据")
         logger.info(f"列名: {list(df.columns)}")
-        
+
+        # 获取最新和前一天的数据来计算涨跌幅
         latest = df.iloc[-1]
+        previous = df.iloc[-2] if len(df) > 1 else None
+
         logger.info(f"最新数据: {dict(latest)}")
-        
+
+        # 计算涨跌额和涨跌幅
+        current_price = _safe_float(latest.get("close"))
+        change = None
+        change_percent = None
+
+        if previous is not None and current_price is not None:
+            previous_price = _safe_float(previous.get("close"))
+            if previous_price is not None and previous_price != 0:
+                change = current_price - previous_price
+                change_percent = (change / previous_price) * 100
+                logger.info(f"计算涨跌: 当前价格={current_price}, 前日价格={previous_price}, 涨跌额={change}, 涨跌幅={change_percent}%")
+
         result = {
-            "last": _safe_float(latest.get("收盘")),
-            "change": None,  # AkShare 数据可能不包含涨跌额
-            "change_percent": _safe_float(latest.get("涨跌幅")),
-            "updated_at": str(latest.get("日期")) if "日期" in latest else None,
+            "last": current_price,
+            "change": change,
+            "change_percent": change_percent,
+            "updated_at": str(latest.get("date")) if "date" in latest else None,
         }
-        
+
         logger.info(f"解析结果: {result}")
         return result
-        
+
     except Exception as e:
         logger.error(f"AkShare 异常: {type(e).__name__}: {e}")
         return None

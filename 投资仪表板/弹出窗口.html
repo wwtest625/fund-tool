@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Investment Dashboard</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A84FF",
+            "background-light": "#F5F5F7",
+            "background-dark": "#0D1117",
+          },
+          fontFamily: {
+            display: ["Inter", "sans-serif"],
+          },
+          borderRadius: {
+            DEFAULT: "1.25rem",
+          },
+        },
+      },
+    };
+  </script>
+<style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200 antialiased">
+<div class="min-h-screen p-4 sm:p-6 lg:p-8">
+<div class="max-w-7xl mx-auto space-y-8">
+<header class="bg-white/70 dark:bg-gray-800/50 backdrop-blur-xl border border-gray-200 dark:border-gray-700/50 rounded-DEFAULT shadow-sm p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+<div>
+<h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Good morning, Investor</h1>
+<p class="text-gray-500 dark:text-gray-400 mt-1">This is Day 1 of your investment journey.</p>
+</div>
+<nav class="flex items-center gap-2 sm:gap-3">
+<a class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" href="#">Help Docs</a>
+<a class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:opacity-90 transition-opacity duration-200" href="#">Donate</a>
+<a class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" href="#">Details</a>
+<a class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" href="#">Cloud Sync</a>
+</nav>
+</header>
+<div class="bg-white/70 dark:bg-gray-800/50 backdrop-blur-xl border border-gray-200 dark:border-gray-700/50 rounded-DEFAULT shadow-sm p-6 sm:p-8">
+<blockquote class="relative">
+<p class="text-xl sm:text-2xl font-medium text-primary leading-relaxed">“Don't put all your energy into forecasting, spend more time on action.”</p>
+<footer class="mt-4 text-gray-500 dark:text-gray-400">— Peter Lynch</footer>
+</blockquote>
+</div>
+<main class="bg-white/70 dark:bg-gray-800/50 backdrop-blur-xl border border-gray-200 dark:border-gray-700/50 rounded-DEFAULT shadow-sm p-6 sm:p-8">
+<div class="mb-8">
+<h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Market Overview</h2>
+<p class="text-gray-500 dark:text-gray-400 mt-1">Four core indicators to help you grasp the current rhythm.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="bg-gray-100/50 dark:bg-gray-900/50 p-6 rounded-2xl">
+<div class="flex justify-between items-baseline">
+<h3 class="font-semibold text-gray-700 dark:text-gray-300">NASDAQ Composite</h3>
+<span class="text-xs font-mono text-gray-400 dark:text-gray-500">NASDAQ</span>
+</div>
+<p class="text-3xl font-bold mt-2 text-gray-900 dark:text-white">17,857.02</p>
+<div class="flex items-center mt-1 text-green-500">
+<span class="material-symbols-outlined text-lg">arrow_drop_up</span>
+<p class="font-medium text-sm">+52.34 (0.29%)</p>
+</div>
+</div>
+<div class="bg-gray-100/50 dark:bg-gray-900/50 p-6 rounded-2xl">
+<div class="flex justify-between items-baseline">
+<h3 class="font-semibold text-gray-700 dark:text-gray-300">S&amp;P 500</h3>
+<span class="text-xs font-mono text-gray-400 dark:text-gray-500">S&amp;P 500</span>
+</div>
+<p class="text-3xl font-bold mt-2 text-gray-900 dark:text-white">5,487.03</p>
+<div class="flex items-center mt-1 text-red-500">
+<span class="material-symbols-outlined text-lg">arrow_drop_down</span>
+<p class="font-medium text-sm">-13.86 (0.25%)</p>
+</div>
+</div>
+<div class="bg-gray-100/50 dark:bg-gray-900/50 p-6 rounded-2xl">
+<div class="flex justify-between items-baseline">
+<h3 class="font-semibold text-gray-700 dark:text-gray-300">LBMA Gold Price</h3>
+<span class="text-xs font-mono text-gray-400 dark:text-gray-500">LBMA</span>
+</div>
+<p class="text-3xl font-bold mt-2 text-gray-900 dark:text-white">2,328.05 USD/oz</p>
+<div class="flex items-center mt-1 text-green-500">
+<span class="material-symbols-outlined text-lg">arrow_drop_up</span>
+<p class="font-medium text-sm">+21.50 (0.93%)</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

@@ -2,21 +2,104 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'ChillDINGothicVF';
+  src: url('/assets/fonts/PingFangSC-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   color-scheme: light;
 }
 
 body {
-  font-family: "Noto Sans SC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "ChillDINGothicVF", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
   padding: 0;
-  background: #f5f6fa;
   width: 600px;
+  height: 500px;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-#popup-app-root {
-  width: 600px;
-  display: flex;
-  justify-content: center;
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 毛玻璃效果增强 */
+.backdrop-blur-xl {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* 卡片悬停效果 */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* 按钮动画效果 */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* 指数卡片动画 */
+.index-card {
+  transition: all 0.3s ease;
+}
+
+.index-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 加载动画 */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* 响应式调整 */
+@media (max-width: 640px) {
+  body {
+    width: 100%;
+    height: auto;
+  }
+
+  .min-h-screen {
+    min-height: 500px;
+  }
+
+  .p-4 {
+    padding: 1rem;
+  }
+
+  .space-y-8 > * + * {
+    margin-top: 1.5rem;
+  }
 }
