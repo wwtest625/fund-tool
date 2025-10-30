@@ -309,13 +309,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-@font-face {
-  font-family: 'Pingfang Zhanlang';
-  src: url('/assets/fonts/平方战狼体.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+<style>
 
 @font-face {
   font-family: 'Qiushui Shotai';
@@ -330,6 +324,9 @@ onMounted(() => {
   font-weight: normal;
   font-style: normal;
 }
+</style>
+
+<style scoped>
 
 .popup-root {
   position: relative;
@@ -386,8 +383,8 @@ onMounted(() => {
 }
 
 .welcome-heading {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 800;
   color: #333333;
 }
 
@@ -420,16 +417,16 @@ onMounted(() => {
 
 .quote-text {
   font-family: 'YanZhenQing DuoBaoTaBei', sans-serif;
-  font-size: 20px;
+  font-size: 40px;
   line-height: 1.5;
-  color: #333333;
+  color: #db3365;
   margin: 0;
   font-style: italic;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .quote-author {
-  font-family: 'YanZhenQing DuoBaoTaBei', sans-serif;
+  font-family: sans-serif;
   font-size: 13px;
   color: #A0A0A0;
   margin: 0;

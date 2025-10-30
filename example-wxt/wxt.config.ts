@@ -3,11 +3,11 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
   manifest: {
-    name: '基金定投助手',
+    name: '投投是道',
     description: '一款简单的基金定投助手',
     version: '1.6.6',
     action: {
-      default_title: '基金定投助手'
+      default_title: '投投是道'
     },
     permissions: ['alarms', 'notifications', 'storage'],
     host_permissions: [
