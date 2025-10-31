@@ -85,11 +85,27 @@ const refreshFund = async (userTriggered: boolean) => {
 				return;
 			}
 			const text = await response.text();
-			const match = text.match(/[a-zA-Z_]+\((.*)\)/);
-			if (!match || match.length < 2) {
+
+			// 检查响应内容是否为空或无效
+			if (!text || text.trim().length === 0) {
+				console.warn(`基金 ${record.code} 返回空响应`);
 				return;
 			}
-	const fund = JSON.parse(match[1]);
+
+			const match = text.match(/[a-zA-Z_]+\((.*)\)/);
+			if (!match || match.length < 2) {
+				console.warn(`基金 ${record.code} 响应格式异常: ${text.substring(0, 100)}`);
+				return;
+			}
+
+			// 验证JSON内容是否有效
+			const jsonStr = match[1].trim();
+			if (!jsonStr || jsonStr === '') {
+				console.warn(`基金 ${record.code} JSON内容为空`);
+				return;
+			}
+
+	const fund = JSON.parse(jsonStr);
 	const updatedRecord = {
 		...record,
 		now: fund.gsz,
@@ -100,6 +116,10 @@ const refreshFund = async (userTriggered: boolean) => {
 	updates[record.code] = stored;
 		} catch (error) {
 			console.error('Failed to refresh fund', record.code, error);
+			// 记录更详细的错误信息用于调试
+			if (error instanceof SyntaxError) {
+				console.error(`基金 ${record.code} JSON解析错误，可能是API返回格式异常`);
+			}
 		}
 	}));
 
@@ -189,6 +209,9 @@ const notifications = async () => {
 			continue;
 		}
 
+		// 检查通知设置
+		const notice = isBlank(record.notice) ? '' : parseInt(record.notice, 10);
+
 		const currentPrice = parseFloat(record.now);
 		const targetPrice = parseFloat(record.fene);
 		const priceDiff = currentPrice - targetPrice;
@@ -198,11 +221,14 @@ const notifications = async () => {
 		let message = '';
 		let icon = 'icon.png';
 
-		if (priceDiff > 0 && percentDiff >= 3) {
+		// 卖出通知：当涨幅达到3%且未暂停所有通知(2)和卖出通知(4)时
+		if (priceDiff > 0 && percentDiff >= 3 && notice !== 2 && notice !== 4) {
 			shouldNotify = true;
 			message = `${record.name || record.code} 当前净值 ${currentPrice}，已超过目标价格 ${targetPrice}，涨幅 ${percentDiff.toFixed(2)}%，建议卖出`;
 			icon = 'sell.png';
-		} else if (priceDiff < 0 && percentDiff >= 3) {
+		}
+		// 补仓通知：当跌幅达到3%且未暂停所有通知(2)和补仓通知(6)时
+		else if (priceDiff < 0 && percentDiff >= 3 && notice !== 2 && notice !== 6) {
 			shouldNotify = true;
 			message = `${record.name || record.code} 当前净值 ${currentPrice}，已低于目标价格 ${targetPrice}，跌幅 ${percentDiff.toFixed(2)}%，建议买入`;
 			icon = 'adding.png';

@@ -235,10 +235,17 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   const donateBtn = document.getElementById('donate-btn');
-  const donationModal = document.getElementById('donation-modal');
-  if (donateBtn && donationModal) {
+  const donationSection = document.getElementById('donation-section');
+  if (donateBtn && donationSection) {
     donateBtn.addEventListener('click', () => {
-      donationModal.classList.remove('hidden');
+      // 切换显示捐赠区域
+      if (donationSection.classList.contains('hidden')) {
+        donationSection.classList.remove('hidden');
+        donateBtn.textContent = '隐藏捐赠';
+      } else {
+        donationSection.classList.add('hidden');
+        donateBtn.textContent = '捐赠支持';
+      }
     });
   }
 
@@ -256,21 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  const closeModalBtn = document.getElementById('close-modal');
-  if (closeModalBtn && donationModal) {
-    closeModalBtn.addEventListener('click', () => {
-      donationModal.classList.add('hidden');
-    });
-  }
 
-  // 点击模态框背景关闭
-  if (donationModal) {
-    donationModal.addEventListener('click', (e) => {
-      if (e.target && (e.target as HTMLElement).id === 'donation-modal') {
-        donationModal.classList.add('hidden');
-      }
-    });
-  }
 
   console.log('[PopupMain] 初始化完成');
 });

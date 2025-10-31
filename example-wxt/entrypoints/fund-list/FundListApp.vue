@@ -248,8 +248,13 @@
            :footer="null"
            width="400px"
          >
-           <p>感谢您对基金定投助手的支持，您的鼓励能帮助我们持续优化体验。</p>
-           <p class="text-center text-gray">（此处可展示赞助二维码）</p>
+           <div class="text-center">
+             <p class="mb-4">感谢您对基金定投助手的支持，您的鼓励能帮助我们持续优化体验。</p>
+             <div class="flex justify-center mb-4">
+               <img src="/img/zan.jpg" alt="支付宝收款码" class="w-48 h-48 object-cover rounded-lg border border-gray-200" />
+             </div>
+             <p class="text-sm text-gray-500">扫码支持开发者</p>
+           </div>
          </t-dialog>
        </div>
      </template>
@@ -558,7 +563,15 @@
      const viewFund = (code: string) => window.open(`https://fund.eastmoney.com/${code}.html`, '_blank');
      const onSelectChange = (selectedKeys: string[]) => selectedRowKeys.value = selectedKeys;
 
-     onMounted(() => loadFunds());
+     onMounted(() => {
+       loadFunds();
+
+       // 检查URL参数，如果有showDonation=true则自动显示捐赠对话框
+       const urlParams = new URLSearchParams(window.location.search);
+       if (urlParams.get('showDonation') === 'true') {
+         donationVisible.value = true;
+       }
+     });
      </script>
 
      <style scoped>

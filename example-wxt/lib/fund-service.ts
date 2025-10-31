@@ -82,9 +82,27 @@ export const refreshFund = async (user: boolean): Promise<boolean> => {
         const response = await fetch(`http://fundgz.1234567.com.cn/js/${record.code}.js?rt=${Date.now()}`);
         if (!response.ok) return;
         const text = await response.text();
+
+        // 检查响应内容是否为空或无效
+        if (!text || text.trim().length === 0) {
+          console.warn(`基金 ${record.code} 返回空响应`);
+          return;
+        }
+
         const match = text.match(/[a-zA-Z_]+\((.*)\)/);
-        if (!match || match.length < 2) return;
-        const fund = JSON.parse(match[1]);
+        if (!match || match.length < 2) {
+          console.warn(`基金 ${record.code} 响应格式异常: ${text.substring(0, 100)}`);
+          return;
+        }
+
+        // 验证JSON内容是否有效
+        const jsonStr = match[1].trim();
+        if (!jsonStr || jsonStr === '') {
+          console.warn(`基金 ${record.code} JSON内容为空`);
+          return;
+        }
+
+        const fund = JSON.parse(jsonStr);
         updates.push({
           ...record,
           now: fund['gsz'],
@@ -93,6 +111,10 @@ export const refreshFund = async (user: boolean): Promise<boolean> => {
         });
       } catch (error) {
         console.error(`获取 ${record.code} 基金信息失败`, error);
+        // 记录更详细的错误信息用于调试
+        if (error instanceof SyntaxError) {
+          console.error(`基金 ${record.code} JSON解析错误，可能是API返回格式异常`);
+        }
       }
     })
   );
