@@ -229,6 +229,111 @@ export interface MarketIndexResponse {
   updatedAt?: string | null;
 }
 
+export interface FundProfile {
+  code: string;
+  name: string;
+  company?: string;
+  manager?: string;
+  type?: string;
+  establish_date?: string;
+  scale?: string;
+  risk_level?: string;
+}
+
+export interface FundRealtime {
+  code: string;
+  name: string;
+  price?: number;
+  estimate?: number;
+  estimate_change_rate?: number;
+  previous_value?: number;
+  previous_change_rate?: number;
+  updated_at?: string;
+}
+
+export interface FundResponse {
+  profile: FundProfile;
+  realtime: FundRealtime;
+}
+
+/**
+ * 获取基金详细信息（包括基础信息和实时数据）
+ */
+export const fetchFundInfo = async (code: string): Promise<FundResponse> => {
+  console.log('[fetchFundInfo] Starting request for fund:', code);
+
+  try {
+    const response = await fetch(`${API_URL}/fund/${code}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('[fetchFundInfo] Response status:', response.status);
+    console.log('[fetchFundInfo] Response ok:', response.ok);
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unable to read error');
+      console.error('[fetchFundInfo] Request failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText
+      });
+      throw new Error(`获取基金信息失败 (${response.status}: ${response.statusText})`);
+    }
+
+    const payload = await response.json().catch((e) => {
+      console.error('[fetchFundInfo] JSON parse error:', e);
+      throw new Error('基金信息解析失败');
+    });
+
+    console.log('[fetchFundInfo] Success:', payload);
+    return payload;
+  } catch (error) {
+    console.error('[fetchFundInfo] Error:', error);
+    throw error;
+  }
+};
+
+/**
+ * 获取基金实时估算数据
+ */
+export const fetchFundEstimate = async (code: string): Promise<FundRealtime> => {
+  console.log('[fetchFundEstimate] Starting request for fund:', code);
+
+  try {
+    const response = await fetch(`${API_URL}/fund/${code}/estimate`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('[fetchFundEstimate] Response status:', response.status);
+    console.log('[fetchFundEstimate] Response ok:', response.ok);
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unable to read error');
+      console.error('[fetchFundEstimate] Request failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText
+      });
+      throw new Error(`获取基金估算失败 (${response.status}: ${response.statusText})`);
+    }
+
+    const payload = await response.json().catch((e) => {
+      console.error('[fetchFundEstimate] JSON parse error:', e);
+      throw new Error('基金估算数据解析失败');
+    });
+
+    console.log('[fetchFundEstimate] Success:', payload);
+    return payload;
+  } catch (error) {
+    console.error('[fetchFundEstimate] Error:', error);
+    throw error;
+  }
+};
+
 export const fetchMarketIndexes = async (): Promise<MarketIndexResponse[]> => {
   console.log('[fetchMarketIndexes] Starting request to:', `${API_URL}/market/indexes`);
   console.log('[fetchMarketIndexes] API_URL:', API_URL);

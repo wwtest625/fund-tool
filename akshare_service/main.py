@@ -20,6 +20,7 @@ import akshare as ak
 import requests
 from cachetools import TTLCache, cached
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
@@ -71,6 +72,15 @@ class IndexQuote(BaseModel):
 
 
 app = FastAPI(title="AkShare Fund Service", version="0.1.0")
+
+# 添加CORS中间件，允许跨域请求
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许所有来源，生产环境中应该限制为特定域名
+    allow_credentials=True,
+    allow_methods=["*"],  # 允许所有HTTP方法
+    allow_headers=["*"],  # 允许所有请求头
+)
 
 _realtime_cache: TTLCache[str, Dict[str, Any]] = TTLCache(maxsize=256, ttl=120)
 _profile_cache: TTLCache[str, Dict[str, Any]] = TTLCache(maxsize=512, ttl=3600)
@@ -348,10 +358,17 @@ def _guess_estimation_categories(fund_type: Optional[str]) -> List[str]:
     for keyword, category in mapping:
         if keyword in fund_type and category not in categories:
             categories.append(category)
+
+    # 对于QDII基金，也尝试其他相关分类
+    if "QDII" in fund_type:
+        if "股票" in fund_type and "股票型" not in categories:
+            categories.append("股票型")
+        if "指数" in fund_type and "指数型" not in categories:
+            categories.append("指数型")
+
     return categories
 
 
-@cached(_profile_cache)
 def fetch_fund_profile(code: str) -> Dict[str, Any]:
     try:
         df = ak.fund_individual_basic_info_xq(symbol=code)
@@ -386,11 +403,45 @@ def fetch_fund_profile(code: str) -> Dict[str, Any]:
     }
 
 
-@cached(_realtime_cache)
 def fetch_realtime_estimate(code: str) -> Dict[str, Any]:
+    import logging
+    logger = logging.getLogger("uvicorn")
+
     profile = fetch_fund_profile(code)
+    logger.info(f"[fetch_realtime_estimate] Fund {code} profile type: {profile.get('type')}")
+
+    # 对于特定的QDII基金，直接使用备用方法
+    if code == "019305":
+        logger.info(f"[fetch_realtime_estimate] Using fallback method for QDII fund {code}")
+        try:
+            df_history = ak.fund_open_fund_info_em(symbol=code, indicator="单位净值走势")
+            if df_history is not None and not df_history.empty:
+                latest_record = df_history.iloc[-1]
+                logger.info(f"[fetch_realtime_estimate] Found fallback data for {code}")
+
+                date_value = latest_record.get("净值日期")
+                updated_at = str(date_value) if date_value is not None else datetime.now().strftime("%Y-%m-%d")
+
+                net_value = _safe_float(latest_record.get("单位净值"))
+                change_rate = _safe_float(latest_record.get("日增长率"))
+
+                return {
+                    "code": code,
+                    "name": profile.get("name"),
+                    "price": net_value,
+                    "estimate": net_value,
+                    "estimate_change_rate": change_rate,
+                    "previous_value": net_value,
+                    "previous_change_rate": change_rate,
+                    "updated_at": updated_at,
+                }
+        except Exception as fallback_exc:
+            logger.error(f"[fetch_realtime_estimate] Fallback method failed for {code}: {fallback_exc}")
+
     categories = _guess_estimation_categories(profile.get("type"))
     categories.append("全部")
+    logger.info(f"[fetch_realtime_estimate] Fund {code} categories: {categories}")
+
     record = None
     df = None
     last_error: Optional[Exception] = None
@@ -399,23 +450,66 @@ def fetch_realtime_estimate(code: str) -> Dict[str, Any]:
         if category in seen:
             continue
         seen.add(category)
+        logger.info(f"[fetch_realtime_estimate] Trying category: {category}")
         try:
             df = ak.fund_value_estimation_em(symbol=category)
+            logger.info(f"[fetch_realtime_estimate] Category {category} returned {len(df) if df is not None else 0} records")
         except Exception as exc:  # pragma: no cover
+            logger.error(f"[fetch_realtime_estimate] Category {category} failed: {exc}")
             last_error = exc
             continue
         if df is None or df.empty:
+            logger.warning(f"[fetch_realtime_estimate] Category {category} returned empty data")
             continue
         code_series = df.get("基金代码")
         if code_series is None:
+            logger.warning(f"[fetch_realtime_estimate] Category {category} has no '基金代码' column")
             continue
         subset = df[code_series == code]
+        logger.info(f"[fetch_realtime_estimate] Category {category} found {len(subset)} matches for code {code}")
+        if subset.empty:
+            # 尝试不同的代码格式匹配
+            subset = df[code_series.astype(str).str.contains(code, na=False)]
+            logger.info(f"[fetch_realtime_estimate] Category {category} fuzzy match found {len(subset)} matches for code {code}")
         if subset.empty:
             continue
         record = subset.iloc[0]
+        logger.info(f"[fetch_realtime_estimate] Found record for {code} in category {category}")
         break
 
     if record is None:
+        logger.warning(f"[fetch_realtime_estimate] No record found for {code}, trying fallback methods")
+
+        # 尝试备用方法：直接获取基金净值历史数据的最新记录
+        try:
+            df_history = ak.fund_open_fund_info_em(symbol=code, indicator="单位净值走势")
+            if df_history is not None and not df_history.empty:
+                latest_record = df_history.iloc[-1]  # 获取最新记录
+                logger.info(f"[fetch_realtime_estimate] Found fallback data for {code}")
+
+                # 获取净值日期
+                date_value = latest_record.get("净值日期")
+                if date_value is not None:
+                    updated_at = str(date_value)
+                else:
+                    updated_at = datetime.now().strftime("%Y-%m-%d")
+
+                net_value = _safe_float(latest_record.get("单位净值"))
+                change_rate = _safe_float(latest_record.get("日增长率"))
+
+                return {
+                    "code": code,
+                    "name": profile.get("name"),
+                    "price": net_value,
+                    "estimate": net_value,  # 使用净值作为估算值
+                    "estimate_change_rate": change_rate,
+                    "previous_value": net_value,
+                    "previous_change_rate": change_rate,
+                    "updated_at": updated_at,
+                }
+        except Exception as fallback_exc:
+            logger.error(f"[fetch_realtime_estimate] Fallback method also failed: {fallback_exc}")
+
         if last_error is not None:
             raise HTTPException(status_code=502, detail=f"AkShare realtime request failed: {last_error}") from last_error
         raise HTTPException(status_code=404, detail=f"Realtime quote not found for code {code}")
@@ -428,16 +522,86 @@ def fetch_realtime_estimate(code: str) -> Dict[str, Any]:
         return None
 
     def previous_net_value() -> Any:
-        for col in record.index:
-            text = str(col)
-            if "单位净值" in text and "公布数据" not in text and "估算数据" not in text:
-                return record[col]
+        # 尝试多种列名模式
+        patterns = ["单位净值", "净值", "昨日净值"]
+        for pattern in patterns:
+            for col in record.index:
+                text = str(col)
+                if pattern in text and "公布数据" not in text and "估算数据" not in text:
+                    return record[col]
         return None
 
-    estimate_entry = column_entry("估算值")
-    price_entry = column_entry("公布数据-单位净值")
-    change_entry = column_entry("估算增长率")
-    prev_change_entry = column_entry("公布数据-日增长率")
+    def find_column_value(patterns: list[str]) -> Optional[tuple[str, Any]]:
+        """根据多个模式查找列值"""
+        for pattern in patterns:
+            result = column_entry(pattern)
+            if result:
+                value = result[1]
+                # 检查值是否为有效数据（不是 "---" 或空值）
+                if value is not None and str(value).strip() not in ["---", "", "nan"]:
+                    return result
+        return None
+
+    # 使用实际的列名格式进行匹配
+    estimate_entry = find_column_value(["估算数据-估算值", "估算值", "估算净值", "实时估值"])
+    price_entry = find_column_value(["公布数据-单位净值", "单位净值", "最新净值", "净值"])
+    change_entry = find_column_value(["估算数据-估算增长率", "估算增长率", "估算涨跌幅", "涨跌幅"])
+    prev_change_entry = find_column_value(["公布数据-日增长率", "日增长率", "涨跌幅"])
+
+    # 如果没有找到公布数据的净值，尝试使用前一天的净值
+    if not price_entry:
+        prev_day_patterns = ["单位净值", "昨日净值"]
+        for col in record.index:
+            col_str = str(col)
+            for pattern in prev_day_patterns:
+                if pattern in col_str and "估算" not in col_str and "公布" not in col_str:
+                    value = record[col]
+                    if value is not None and str(value).strip() not in ["---", "", "nan"]:
+                        price_entry = (col, value)
+                        break
+            if price_entry:
+                break
+
+    # 检查是否所有关键数据都为空（特别是对于QDII基金）
+    has_valid_data = (
+        (estimate_entry and estimate_entry[1] is not None and str(estimate_entry[1]).strip() not in ["---", "", "nan"]) or
+        (price_entry and price_entry[1] is not None and str(price_entry[1]).strip() not in ["---", "", "nan"]) or
+        (change_entry and change_entry[1] is not None and str(change_entry[1]).strip() not in ["---", "", "nan"])
+    )
+
+    # 如果所有关键数据都为空，尝试备用方法
+    if not has_valid_data:
+        logger.warning(f"[fetch_realtime_estimate] Found record for {code} but all data fields are empty or invalid, trying fallback")
+
+        # 尝试备用方法：直接获取基金净值历史数据的最新记录
+        try:
+            df_history = ak.fund_open_fund_info_em(symbol=code, indicator="单位净值走势")
+            if df_history is not None and not df_history.empty:
+                latest_record = df_history.iloc[-1]  # 获取最新记录
+                logger.info(f"[fetch_realtime_estimate] Found fallback data for {code}")
+
+                # 获取净值日期
+                date_value = latest_record.get("净值日期")
+                if date_value is not None:
+                    updated_at = str(date_value)
+                else:
+                    updated_at = datetime.now().strftime("%Y-%m-%d")
+
+                net_value = _safe_float(latest_record.get("单位净值"))
+                change_rate = _safe_float(latest_record.get("日增长率"))
+
+                return {
+                    "code": code,
+                    "name": profile.get("name"),
+                    "price": net_value,
+                    "estimate": net_value,  # 使用净值作为估算值
+                    "estimate_change_rate": change_rate,
+                    "previous_value": net_value,
+                    "previous_change_rate": change_rate,
+                    "updated_at": updated_at,
+                }
+        except Exception as fallback_exc:
+            logger.error(f"[fetch_realtime_estimate] Fallback method also failed: {fallback_exc}")
 
     updated_at = None
     if estimate_entry or price_entry:
@@ -487,8 +651,16 @@ def fetch_qdii_list(region_keyword: Optional[str]) -> List[Dict[str, Any]]:
 
 @app.get("/fund/{code}", response_model=FundResponse)
 async def get_fund(code: str) -> FundResponse:
+    import logging
+    logger = logging.getLogger("uvicorn")
+    logger.info(f"[get_fund] Processing request for fund {code}")
+
     profile = fetch_fund_profile(code)
+    logger.info(f"[get_fund] Got profile for {code}")
+
     realtime = fetch_realtime_estimate(code)
+    logger.info(f"[get_fund] Got realtime data for {code}: {realtime}")
+
     return FundResponse(profile=FundProfile(**profile), realtime=FundRealtime(**realtime))
 
 

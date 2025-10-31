@@ -175,11 +175,18 @@
            <!-- Add Fund Row -->
            <div class="add-fund-section">
              <t-space :size="12" align="center">
-               <t-input
-                 v-model="newFund.code"
-                 placeholder="基金代码"
-                 style="width: 120px"
-               />
+               <div class="fund-code-input">
+                 <t-input
+                   v-model="newFund.code"
+                   placeholder="基金代码"
+                   style="width: 120px"
+                   @blur="onFundCodeBlur"
+                   :loading="codeLoading"
+                 />
+                 <div v-if="newFund.name" class="fund-name-preview">
+                   {{ newFund.name }}
+                 </div>
+               </div>
                <t-input-number
                  v-model="newFund.buy"
                  placeholder="成本价"
@@ -262,21 +269,23 @@
        ViewModuleIcon,
        AddIcon
      } from 'tdesign-icons-vue-next';
+     import { fetchFundInfo, fetchFundEstimate } from '../../lib/fund-service';
 
      interface FundItem {
        code: string;
        name?: string;
-       buy: number;
-       adding: number;
-       sell: number;
-       fene: number;
-       now?: number;
-       jingzhi?: number;
+       buy: number | string;
+       adding: number | string;
+       sell: number | string;
+       fene: number | string;
+       now?: number | string;
+       jingzhi?: number | string;
        jingzhi_time?: string;
        notice?: string;
      }
 
      const loading = ref(false);
+     const codeLoading = ref(false);
      const fundList = ref<FundItem[]>([]);
      const selectedRowKeys = ref<string[]>([]);
      const noticeType = ref('');
@@ -285,6 +294,7 @@
 
      const newFund = ref({
        code: '',
+       name: '',
        buy: 0,
        adding: 0,
        sell: 0,
@@ -323,15 +333,49 @@
              const item = typeof all[key] === 'string' ? JSON.parse(all[key]) : all[key];
              if (item) {
                item.code = key;
+               // 确保通知字段存在，默认为开启所有通知
+               if (!item.notice) {
+                 item.notice = '1';
+               }
                list.push(item);
              }
            }
          }
-         fundList.value = list;
+         fundList.value = list.sort((a, b) => a.code.localeCompare(b.code));
        } catch (error) {
+         console.error('加载基金数据失败:', error);
          MessagePlugin.error('加载基金数据失败');
        } finally {
          loading.value = false;
+       }
+     };
+
+     /**
+      * 基金代码输入失焦时自动获取基金信息
+      */
+     const onFundCodeBlur = async () => {
+       const code = newFund.value.code.trim();
+       if (!code || !/^\d{6}$/.test(code)) {
+         return;
+       }
+
+       // 如果已经有名称了，不重复获取
+       if (newFund.value.name) {
+         return;
+       }
+
+       codeLoading.value = true;
+       try {
+         const fundInfo = await fetchFundInfo(code);
+         newFund.value.name = fundInfo.profile.name || fundInfo.realtime.name || '';
+         if (newFund.value.name) {
+           MessagePlugin.success(`已获取基金信息：${newFund.value.name}`);
+         }
+       } catch (error) {
+         console.error('获取基金信息失败:', error);
+         MessagePlugin.warning('获取基金信息失败，请检查基金代码是否正确');
+       } finally {
+         codeLoading.value = false;
        }
      };
 
@@ -345,11 +389,17 @@
          return;
        }
        try {
-         await storageApi.set(newFund.value.code, { ...newFund.value });
-         fundList.value.push({ ...newFund.value });
-         newFund.value = { code: '', buy: 0, adding: 0, sell: 0, fene: 0 };
+         const fundData = {
+           ...newFund.value,
+           notice: '1' // 默认开启所有通知
+         };
+         await storageApi.set(newFund.value.code, fundData);
+         fundList.value.push({ ...fundData, code: newFund.value.code });
+         fundList.value.sort((a, b) => a.code.localeCompare(b.code));
+         newFund.value = { code: '', name: '', buy: 0, adding: 0, sell: 0, fene: 0 };
          MessagePlugin.success('添加成功');
        } catch (error) {
+         console.error('添加基金失败:', error);
          MessagePlugin.error('添加失败');
        }
      };
@@ -374,45 +424,134 @@
        }
      };
 
+     /**
+      * 更新通知设置
+      */
      const updateNotice = async () => {
        if (!noticeType.value || selectedRowKeys.value.length === 0) {
          MessagePlugin.warning('请选择通知设置和基金');
          return;
        }
-       for (const code of selectedRowKeys.value) {
-         const fund = fundList.value.find(f => f.code === code);
-         if (fund) {
-           fund.notice = noticeType.value;
-           await updateFund(fund);
+
+       try {
+         const updates: Promise<void>[] = [];
+
+         for (const code of selectedRowKeys.value) {
+           const fund = fundList.value.find(f => f.code === code);
+           if (fund) {
+             fund.notice = noticeType.value;
+             updates.push(updateFund(fund));
+           }
          }
+
+         await Promise.all(updates);
+
+         const updatedCount = selectedRowKeys.value.length;
+
+         // 清空选择和通知类型
+         selectedRowKeys.value = [];
+         noticeType.value = '';
+
+         MessagePlugin.success(`已为 ${updatedCount} 只基金更新通知设置`);
+       } catch (error) {
+         console.error('更新通知设置失败:', error);
+         MessagePlugin.error('更新通知设置失败');
        }
-       MessagePlugin.success('通知设置已更新');
      };
 
      const calculateProfit = (fund: FundItem): number => {
        if (!fund.fene || !fund.now) return 0;
-       return fund.fene * fund.now - fund.buy * fund.fene;
+       const fene = typeof fund.fene === 'string' ? parseFloat(fund.fene) : fund.fene;
+       const now = typeof fund.now === 'string' ? parseFloat(fund.now) : fund.now;
+       const buy = typeof fund.buy === 'string' ? parseFloat(fund.buy) : fund.buy;
+       if (isNaN(fene) || isNaN(now) || isNaN(buy)) return 0;
+       return fene * now - buy * fene;
      };
 
      const calculateHoldProfit = (fund: FundItem): number => {
        if (!fund.fene || !fund.jingzhi) return 0;
-       return fund.fene * fund.jingzhi - fund.buy * fund.fene;
+       const fene = typeof fund.fene === 'string' ? parseFloat(fund.fene) : fund.fene;
+       const jingzhi = typeof fund.jingzhi === 'string' ? parseFloat(fund.jingzhi) : fund.jingzhi;
+       const buy = typeof fund.buy === 'string' ? parseFloat(fund.buy) : fund.buy;
+       if (isNaN(fene) || isNaN(jingzhi) || isNaN(buy)) return 0;
+       return fene * jingzhi - buy * fene;
      };
 
      const totalProfit = computed(() => fundList.value.reduce((sum, fund) => sum + calculateProfit(fund), 0));
      const totalHoldProfit = computed(() => fundList.value.reduce((sum, fund) => sum + calculateHoldProfit(fund), 0));
 
-     const formatPrice = (price?: number): string => price != null ? price.toFixed(4) : '--';
-     const formatProfit = (profit: number): string => profit.toFixed(2);
+     const formatPrice = (price?: number | string): string => {
+       if (price == null) return '--';
+       const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+       return !isNaN(numPrice) ? numPrice.toFixed(4) : '--';
+     };
+     const formatProfit = (profit: number): string => {
+       const numProfit = typeof profit === 'string' ? parseFloat(profit as string) : profit;
+       return !isNaN(numProfit) ? numProfit.toFixed(2) : '--';
+     };
      const getProfitClass = (profit: number): string => profit > 0 ? 'profit-positive' : profit < 0 ? 'profit-negative' : '';
      const getPriceClass = (fund: FundItem): string => {
        if (!fund.now) return '';
-       if (fund.sell && fund.now >= fund.sell) return 'price-danger';
-       if (fund.adding && fund.adding >= fund.now) return 'price-success';
+       const now = typeof fund.now === 'string' ? parseFloat(fund.now) : fund.now;
+       const sell = typeof fund.sell === 'string' ? parseFloat(fund.sell) : fund.sell;
+       const adding = typeof fund.adding === 'string' ? parseFloat(fund.adding) : fund.adding;
+
+       if (isNaN(now)) return '';
+       if (!isNaN(sell) && now >= sell) return 'price-danger';
+       if (!isNaN(adding) && adding >= now) return 'price-success';
        return '';
      };
 
-     const refreshData = () => loadFunds();
+     /**
+      * 刷新基金数据 - 从后端服务获取最新的实时数据
+      */
+     const refreshData = async () => {
+       if (fundList.value.length === 0) {
+         await loadFunds();
+         return;
+       }
+
+       loading.value = true;
+       try {
+         const updates: FundItem[] = [];
+
+         // 并行获取所有基金的最新数据
+         await Promise.all(
+           fundList.value.map(async (fund) => {
+             try {
+               const estimate = await fetchFundEstimate(fund.code);
+               const updatedFund = {
+                 ...fund,
+                 name: estimate.name || fund.name,
+                 now: estimate.estimate || estimate.price || fund.now,
+                 jingzhi: estimate.previous_value || fund.jingzhi,
+                 jingzhi_time: estimate.updated_at || fund.jingzhi_time
+               };
+               updates.push(updatedFund);
+
+               // 更新存储
+               const data = { ...updatedFund };
+               delete (data as any).code;
+               await storageApi.set(fund.code, data);
+             } catch (error) {
+               console.error(`刷新基金 ${fund.code} 数据失败:`, error);
+               // 如果获取失败，保持原数据
+               updates.push(fund);
+             }
+           })
+         );
+
+         // 更新列表
+         fundList.value = updates;
+         MessagePlugin.success(`已刷新 ${updates.length} 只基金的数据`);
+       } catch (error) {
+         console.error('刷新数据失败:', error);
+         MessagePlugin.error('刷新数据失败');
+       } finally {
+         loading.value = false;
+       }
+     };
+
      const openHelp = () => window.open('https://www.pescms.com/d/v/32/84.html', '_blank');
      const showDonation = () => donationVisible.value = true;
      const openBackup = () => MessagePlugin.info('云备份功能待集成');
@@ -439,6 +578,22 @@
      .fund-name-cell { display: flex; align-items: center; gap: 8px; }
      .notice-icon { color: #f59e0b; font-size: 16px; }
      .add-fund-section { padding: 16px; border-top: 1px solid #e5e7eb; background: #f9fafb; }
+     .fund-code-input { position: relative; }
+     .fund-name-preview {
+       position: absolute;
+       top: 100%;
+       left: 0;
+       right: 0;
+       background: #fff;
+       border: 1px solid #e5e7eb;
+       border-top: none;
+       padding: 8px 12px;
+       font-size: 12px;
+       color: #64748b;
+       border-radius: 0 0 6px 6px;
+       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+       z-index: 10;
+     }
      .summary-section { padding: 16px; border-top: 1px solid #e5e7eb; background: #fafafa; }
      .summary-item { display: flex; align-items: center; gap: 8px; }
      .summary-label { font-weight: 500; color: #475569; }
